@@ -827,6 +827,7 @@ const MODULES = {
       'Todas as manilhas estão com contra-pinos?',
       'Equipamento e eslinga estão de acordo com o color code do cliente?',
     ],
+    inspecaoSemTroca: true,
     hasEquipamentos: true,
     statusPor: 'equipamentos',
     requiredIds: ['inspetor1','data','placa','horaChegada','horaSaida','cliente'],
@@ -1206,7 +1207,8 @@ function buildForm() {
   } else {
     // Outros módulos (externa)
     if (inspecaoHeader) inspecaoHeader.textContent = 'Inspeção';
-    document.getElementById('inspecao-itens').innerHTML = buildInspecaoHTML(mod.inspecao);
+    // Se inspecaoSemTroca = true, passa false para não mostrar opção TROCA
+    document.getElementById('inspecao-itens').innerHTML = buildInspecaoHTML(mod.inspecao, mod.inspecaoSemTroca ? false : true);
   }
 
   switchTab('checklist');
