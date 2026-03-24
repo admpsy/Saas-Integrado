@@ -2325,13 +2325,17 @@ window.generatePDF = function(id) {
         let diasY = y + 36;
         if (diasCert !== null) {
           const corCert = diasCert > 120 ? [22,163,74] : diasCert > 30 ? [234,179,8] : [220,38,38];
-          setFont(7,'bold', corCert);
-          txt(diasCert > 0 ? '✓ '+diasCert+' dias restantes (Cert.)' : '⚠ Vencido há '+Math.abs(diasCert)+' dias', mg+CW/2, diasY);
+          setFont(7,'normal', corCert);
+          doc.setCharSpace(0);
+          const txtCert = diasCert > 0 ? diasCert+' dias (Cert.)' : 'Vencido '+Math.abs(diasCert)+' dias';
+          txt(txtCert, mg+CW/2, diasY);
         }
         if (diasEslinga !== null) {
           const corEsl = diasEslinga > 120 ? [22,163,74] : diasEslinga > 30 ? [234,179,8] : [220,38,38];
-          setFont(7,'bold', corEsl);
-          txt(diasEslinga > 0 ? '✓ '+diasEslinga+' dias restantes (Esl.)' : '⚠ Vencido há '+Math.abs(diasEslinga)+' dias', mg+CW/2+40, diasY);
+          setFont(7,'normal', corEsl);
+          doc.setCharSpace(0);
+          const txtEsl = diasEslinga > 0 ? diasEslinga+' dias (Esl.)' : 'Vencido '+Math.abs(diasEslinga)+' dias';
+          txt(txtEsl, mg+CW/2+45, diasY);
         }
         
         if(obsLines.length){ setFont(7,'bold',[185,35,35]); doc.text(obsLines,mg+5,y+45); }
