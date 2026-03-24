@@ -454,19 +454,19 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
     </div>
   </div>
 
-  <!-- EQUIPAMENTOS (apenas externa) -->
-  <div class="section-card" id="section-equipamentos" style="display:none;">
-    <div class="section-header"><div class="section-icon">🔧</div><h3 class="section-title">Equipamentos</h3></div>
-    <div id="equipamentos-container"></div>
-    <button type="button" class="btn btn-ghost" id="add-equipamento"><span>+</span> Adicionar Equipamento</button>
-  </div>
-
   <!-- SERVIÇOS (oculto no transbordo via JS) -->
   <div class="section-card" id="section-servicos">
     <div class="section-header"><div class="section-icon">⚙️</div><h3 class="section-title">Serviços Realizados</h3></div>
     <div class="services-grid" id="servicos-grid">
       <!-- preenchido por JS -->
     </div>
+  </div>
+
+  <!-- EQUIPAMENTOS (externa e transbordo) -->
+  <div class="section-card" id="section-equipamentos" style="display:none;">
+    <div class="section-header"><div class="section-icon">🔧</div><h3 class="section-title">Equipamentos</h3></div>
+    <div id="equipamentos-container"></div>
+    <button type="button" class="btn btn-ghost" id="add-equipamento"><span>+</span> Adicionar Equipamento</button>
   </div>
 
   <!-- INSPEÇÃO -->
@@ -2291,6 +2291,20 @@ window.generatePDF = function(id) {
       }
     }
 
+    // ── SERVIÇOS (antes dos equipamentos)
+    if(c.servicos && c.servicos.length && currentModule.hasServicos) {
+      y=secHead('Serviços Realizados',y);
+      const cols=3, cw=CW/cols;
+      c.servicos.forEach((s,i)=>{
+        chk(8);
+        const col=i%cols, row=Math.floor(i/cols);
+        if(i%cols===0 && i>0) y+=8;
+        setFont(7.5,'bold',[34,197,94]); txt('✓',mg+col*cw,y+row*0);
+        setFont(7.5,'normal',[30,30,30]); txt(s,mg+col*cw+6,y+row*0);
+      });
+      y+=12;
+    }
+
     // ── EQUIPAMENTOS (externa + interna + transbordo) com fotos por equipamento
     if(currentModule.hasEquipamentos && c.equipamentos && c.equipamentos.length) {
       y=secHead('Equipamentos e Certificações',y);
@@ -2363,20 +2377,6 @@ window.generatePDF = function(id) {
           y+=4;
         }
       });
-    }
-
-    // ── SERVIÇOS (não exibir no transbordo)
-    if(c.servicos && c.servicos.length && currentModule.hasServicos) {
-      y=secHead('Serviços Realizados',y);
-      const cols=3, cw=CW/cols;
-      c.servicos.forEach((s,i)=>{
-        chk(8);
-        const col=i%cols, row=Math.floor(i/cols);
-        if(i%cols===0 && i>0) y+=8;
-        setFont(7.5,'bold',[34,197,94]); txt('✓',mg+col*cw,y+row*0);
-        setFont(7.5,'normal',[30,30,30]); txt(s,mg+col*cw+6,y+row*0);
-      });
-      y+=12;
     }
 
     // ── INSPEÇÃO
