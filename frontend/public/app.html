@@ -2242,6 +2242,19 @@ window.generatePDF = function(id) {
       const mins = minutos % 60;
       return `${horas}h ${mins.toString().padStart(2,'0')}min`;
     };
+    
+    // ── Função para formatar data em PT-BR (dd/mm/aaaa)
+    const fmtDatePTBR = (dateStr) => {
+      if (!dateStr) return '—';
+      // Se já estiver no formato dd/mm/aaaa, retorna como está
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return dateStr;
+      // Se estiver no formato yyyy-mm-dd (input date)
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        const [y, m, d] = dateStr.split('-');
+        return `${d}/${m}/${y}`;
+      }
+      return dateStr;
+    };
 
     // ── DADOS DO REGISTRO
     y=secHead('Dados do Registro',y);
@@ -2253,6 +2266,11 @@ window.generatePDF = function(id) {
     campos.forEach((campo,i)=>{
       let val=c[campo.id]||'—';
       
+      // Formatar data em PT-BR
+      if (campo.type === 'date' && val && val !== '—') {
+        val = fmtDatePTBR(val);
+      }
+      
       // Adicionar tempo total ao lado de Hora de Saída
       if (campo.id === 'horaSaida' && tempoTotal) {
         val = val + '  (Tempo Total: ' + tempoTotal + ')';
@@ -2260,10 +2278,10 @@ window.generatePDF = function(id) {
       
       chk(8);
       if(i%2===0){
-        setFont(7.5,'bold',[100,100,100]); txt(campo.label.replace(' *','').toUpperCase(),mg+2,y);
+        setFont(7.5,'bold',[100,100,100]); txt(campo.label.replace(' *','').replace(' (automática)','').toUpperCase(),mg+2,y);
         setFont(9,'normal',[30,30,30]); txt(String(val),mg+2,y+5);
       } else {
-        setFont(7.5,'bold',[100,100,100]); txt(campo.label.replace(' *','').toUpperCase(),mg+CW/2+4,y);
+        setFont(7.5,'bold',[100,100,100]); txt(campo.label.replace(' *','').replace(' (automática)','').toUpperCase(),mg+CW/2+4,y);
         setFont(9,'normal',[30,30,30]); txt(String(val),mg+CW/2+4,y+5);
         y+=14;
       }
