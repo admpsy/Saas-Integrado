@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tiger Rentank</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#FFCC00">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
@@ -482,6 +484,26 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
 </div>
 
 <!-- ════════════════════════════════════════════════════════
+     LOGIN SCREEN
+════════════════════════════════════════════════════════ -->
+<div id="login-screen" style="display:none; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; padding:24px 16px; gap:20px;">
+  <div class="selector-logo-badge">Tiger Rentank</div>
+  <div class="selector-title">Acesso ao Sistema</div>
+  <p class="selector-subtitle">Faça login para continuar</p>
+  <div class="section-card" style="width:100%; max-width:320px; text-align:left;">
+    <div class="form-group" style="margin-bottom:14px;">
+      <label>Seu Nome</label>
+      <select id="login-user-select"><option value="">Selecione...</option></select>
+    </div>
+    <div class="form-group" style="margin-bottom:20px;">
+      <label>PIN de Acesso</label>
+      <input type="password" id="login-pin" inputmode="numeric" placeholder="****">
+    </div>
+    <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="appLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
      MODULE SELECTOR
 ════════════════════════════════════════════════════════ -->
 <div id="module-selector">
@@ -492,25 +514,25 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
   <div class="selector-title">Selecione o Módulo de Operação</div>
   <p class="selector-subtitle">Todos os seus checklists em um só lugar</p>
   <div class="modules-grid">
-    <div class="module-card transbordo" onclick="selectModule('transbordo')">
+    <div class="module-card transbordo" id="card-transbordo" onclick="selectModule('transbordo')">
       <div class="module-icon">🔄</div>
       <div class="module-name">Transbordo</div>
       <div class="module-desc">Checklist de operações de transbordo de cargas, tanques e líquidos.</div>
       <span class="module-badge badge-blue">Operações</span>
     </div>
-    <div class="module-card interna" onclick="selectModule('interna')">
+    <div class="module-card interna" id="card-interna" onclick="selectModule('interna')">
       <div class="module-icon">🏭</div>
       <div class="module-name">Logística Interna</div>
       <div class="module-desc">Movimentação e controle de equipamentos dentro da planta.</div>
       <span class="module-badge badge-green">Interna</span>
     </div>
-    <div class="module-card externa" onclick="selectModule('externa')">
+    <div class="module-card externa" id="card-externa" onclick="selectModule('externa')">
       <div class="module-icon">🚛</div>
       <div class="module-name">Logística Externa</div>
       <div class="module-desc">Atendimentos externos, certificação e inspeção de equipamentos.</div>
       <span class="module-badge badge-yellow">Externa</span>
     </div>
-    <div class="module-card visao-geral" onclick="selectModule('visao')">
+    <div class="module-card visao-geral" id="card-visao" onclick="selectModule('visao')">
       <div class="module-icon">📊</div>
       <div class="module-name">Visão Geral</div>
       <div class="module-desc">Dashboard consolidado com dados dos 3 módulos integrados.</div>
@@ -630,6 +652,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
     <div class="filter-group"><label>Status</label><select id="filter-status"><option value="all">Todos</option><option value="APROVADO">Aprovado</option><option value="REPROVADO">Reprovado</option><option value="PENDENTE">Pendente</option></select></div>
     <div class="filter-group"><label>Data</label><input type="date" id="filter-date"></div>
     <button type="button" class="btn btn-primary btn-sm" id="apply-filters" style="align-self:flex-end;">Aplicar</button>
+    <button type="button" class="btn btn-info btn-sm" id="export-csv" style="align-self:flex-end;">📊 Excel (CSV)</button>
     <button type="button" class="btn btn-ghost btn-sm" id="export-json" style="align-self:flex-end;">⬇ Exportar</button>
     <button type="button" class="btn btn-ghost btn-sm" id="import-json-btn" style="align-self:flex-end;">⬆ Importar</button>
     <input type="file" id="import-json-input" accept=".json" style="display:none;">
@@ -656,6 +679,25 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
 <div id="configuracoes" class="tab-content">
   <h1 class="page-title">⚙️ Configurações</h1>
   <p class="page-subtitle">Gerencie clientes, responsáveis, produtos e modelos de equipamentos do módulo Transbordo.</p>
+  <!-- USUÁRIOS -->
+  <div class="section-card" id="admin-users-section" style="display:none;">
+    <div class="section-header"><div class="section-icon">🔐</div><h3 class="section-title">Controle de Usuários</h3></div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:flex-end;">
+      <div style="flex:1;min-width:150px;"><label style="font-size:12px;color:var(--text-muted);">Nome do Usuário</label><br><input type="text" id="cfg-user-name" placeholder="Ex: João Silva" style="width:100%;"></div>
+      <div style="flex:1;min-width:100px;"><label style="font-size:12px;color:var(--text-muted);">PIN</label><br><input type="password" id="cfg-user-pin" placeholder="****" inputmode="numeric" style="width:100%;"></div>
+      <div style="flex:2;min-width:200px;"><label style="font-size:12px;color:var(--text-muted);">Módulos Permitidos</label><br>
+        <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;">
+          <input type="checkbox" id="role-transbordo" value="transbordo" checked> <label for="role-transbordo">Transbordo</label>
+          <input type="checkbox" id="role-interna" value="interna" checked> <label for="role-interna">Interna</label>
+          <input type="checkbox" id="role-externa" value="externa" checked> <label for="role-externa">Externa</label>
+          <input type="checkbox" id="role-visao" value="visao" checked> <label for="role-visao">Painel</label>
+          <input type="checkbox" id="role-config" value="config"> <label for="role-config">Admin</label>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="cfgAddUser()">+ Novo Usuário</button>
+    </div>
+    <div id="cfg-users-list"></div>
+  </div>
 
   <!-- CLIENTES -->
   <div class="section-card">
@@ -718,6 +760,15 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
 
 <script>
 'use strict';
+// ════════════════════════════════════════════════════════════
+//  SERVICE WORKER E PWA
+// ════════════════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(err => console.log('Erro SW', err));
+  });
+}
+
 // ════════════════════════════════════════════════════════════
 //  MÓDULOS — DEFINIÇÃO COMPLETA
 // ════════════════════════════════════════════════════════════
@@ -1606,6 +1657,7 @@ function setupEventListeners() {
   document.getElementById('filter-search').addEventListener('input', updateHistoryList);
   document.getElementById('clear-all-data').addEventListener('click', clearAllData);
   document.getElementById('export-json').addEventListener('click', exportBackup);
+  document.getElementById('export-csv')?.addEventListener('click', exportCSV);
   document.getElementById('import-json-btn').addEventListener('click', () => document.getElementById('import-json-input').click());
   document.getElementById('import-json-input').addEventListener('change', importBackup);
 
@@ -2063,6 +2115,45 @@ function exportBackup() {
   a.click(); URL.revokeObjectURL(url);
   showNotification('Backup exportado — '+checklists.length+' registro(s)!');
 }
+
+function exportCSV() {
+  if (!checklists.length) { showNotification('Nenhum dado para exportar.','error'); return; }
+  
+  let headers = ['ID', 'Data', 'DataSistema', 'Status', 'Cliente', 'Responsavel'];
+  if (currentModule.color === 'transbordo') headers.push('TipoOperacao', 'TipoCarga', 'Produto', 'Lote');
+  else if (currentModule.color === 'interna') headers.push('Motivo', 'HoraInicial', 'HoraFinal');
+  else if (currentModule.color === 'externa') headers.push('Placa', 'HoraChegada', 'HoraSaida', 'Inspetor1');
+  
+  headers.push('QtdeEquip', 'QtdFotos', 'Obs');
+
+  let rows = [headers.join(';')];
+  
+  checklists.forEach(c => {
+    let row = [
+      c.id || '', c.data || '', c.timestamp || '', c.status || '', c.cliente || '', c.responsavel || ''
+    ];
+    
+    if (currentModule.color === 'transbordo') row.push(c.tipoOperacao||'', c.tipoCarga||'', c.produto||'', c.lote||'');
+    else if (currentModule.color === 'interna') row.push(c.motivo||'', c.horaInicial||'', c.horaFinal||'');
+    else if (currentModule.color === 'externa') row.push(c.placa||'', c.horaChegada||'', c.horaSaida||'', c.inspetor1||'');
+    
+    const qtyEq = (c.equipamentos||[]).length;
+    const qtyFoto = (c.equipamentos||[]).reduce((acc, eq) => acc + (eq.fotos?.length||0), 0);
+    row.push(qtyEq, qtyFoto, (c.observacoes||'').replace(/\n/g, ' - '));
+    
+    row = row.map(v => typeof v === 'string' ? `"${v.replace(/"/g, '""')}"` : v);
+    rows.push(row.join(';'));
+  });
+  
+  // Usar BOM-UTF8 para o Excel abrir direto
+  const blob = new Blob([String.fromCharCode(0xFEFF) + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `planilha_tiger_${currentModule.color}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  showNotification('Planilha CSV gerada!');
+}
+
 function importBackup(e) {
   const file=e.target.files[0]; if (!file) return;
   const reader=new FileReader();
@@ -2242,7 +2333,62 @@ function cfgRenderAll() {
   cfgRenderList('responsaveis','cfg-responsaveis-list');
   cfgRenderList('produtos',    'cfg-produtos-list');
   cfgRenderList('modelos',     'cfg-modelos-list');
+  cfgRenderUsers();
 }
+
+function cfgRenderUsers() {
+  const el = document.getElementById('cfg-users-list');
+  if (!el) return;
+  const adminSec = document.getElementById('admin-users-section');
+  if (loggedInUser && (loggedInUser.roles || []).includes('config')) {
+    adminSec.style.display = 'block';
+  } else {
+    adminSec.style.display = 'none'; return;
+  }
+  
+  let users = JSON.parse(localStorage.getItem('tiger_users_config')) || [];
+  if (!users.length) { el.innerHTML = ''; return; }
+  
+  el.innerHTML = users.map(u => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--bg-section);border:1px solid var(--border);border-radius:8px;margin-bottom:7px;">
+      <div><span style="font-size:14px;font-weight:bold;">${u.name}</span> <span style="font-size:12px;color:var(--text-muted);">(${u.id})</span><br><span style="font-size:11px;color:var(--info);">Acessos: ${(u.roles||[]).join(', ')}</span></div>
+      ${u.id !== 'admin' ? `<button class="btn btn-danger btn-sm" onclick="cfgRemoveUser('${u.id}')">✕</button>` : `<span style="font-size:11px;color:var(--text-muted);">Fixo</span>`}
+    </div>`).join('');
+}
+
+window.cfgAddUser = function() {
+  const name = document.getElementById('cfg-user-name').value.trim();
+  const pin = document.getElementById('cfg-user-pin').value.trim();
+  if (!name || !pin) { showNotification('Preencha Nome e PIN.', 'error'); return; }
+  
+  const roles = [];
+  ['transbordo','interna','externa','visao','config'].forEach(r => {
+    if (document.getElementById('role-'+r).checked) roles.push(r);
+  });
+  
+  let users = JSON.parse(localStorage.getItem('tiger_users_config')) || [];
+  const id = name.toLowerCase().replace(/[^a-z0-9]/g, '') || ('u'+Date.now());
+  if (users.find(u => u.id === id)) { showNotification('Usuário já existe!', 'error'); return; }
+  
+  users.push({ id, name, pin, roles });
+  localStorage.setItem('tiger_users_config', JSON.stringify(users));
+  
+  document.getElementById('cfg-user-name').value = '';
+  document.getElementById('cfg-user-pin').value = '';
+  showNotification('Usuário cadastrado com sucesso!');
+  cfgRenderUsers();
+  initLogin();
+};
+
+window.cfgRemoveUser = function(id) {
+  if (!confirm('Remover usuário? Ele perderá o acesso!')) return;
+  let users = JSON.parse(localStorage.getItem('tiger_users_config')) || [];
+  users = users.filter(u => u.id !== id);
+  localStorage.setItem('tiger_users_config', JSON.stringify(users));
+  showNotification('Usuário removido!');
+  cfgRenderUsers();
+  initLogin();
+};
 
 function cfgUpdateSelects() {
   if (!currentModule || currentModule.color !== 'transbordo') return;
@@ -2255,9 +2401,15 @@ function cfgUpdateSelects() {
   maps.forEach(({ id, key }) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const current = el.value;
+    let isResp = id === 'responsavel';
+    let options = cfg[key];
+    if (isResp && loggedInUser && !options.includes(loggedInUser.name)) {
+      options.push(loggedInUser.name);
+    }
+    const current = (isResp && loggedInUser) ? loggedInUser.name : el.value;
+    
     el.innerHTML = `<option value="">Selecione...</option>` +
-      cfg[key].map(v => `<option value="${v}"${v===current?' selected':''}>${v}</option>`).join('');
+      options.map(v => `<option value="${v}"${v===current?' selected':''}>${v}</option>`).join('');
   });
 }
 
@@ -2604,12 +2756,88 @@ window.generatePDF = function(id) {
 };
 
 // ════════════════════════════════════════════════════════════
-//  INIT
+//  CONTROLE DE USUÁRIOS (LOGIN LOCAL) E INIT
 // ════════════════════════════════════════════════════════════
+let loggedInUser = null;
+
+function initLogin() {
+  let users = JSON.parse(localStorage.getItem('tiger_users_config')) || [];
+  if (users.length === 0) {
+    users = [{id:'admin', name:'Administrador', pin:'1234', roles:['transbordo','interna','externa','visao','config']}];
+    localStorage.setItem('tiger_users_config', JSON.stringify(users));
+  }
+  const select = document.getElementById('login-user-select');
+  if (select) {
+    select.innerHTML = '<option value="">Selecione o Usuário...</option>' + users.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+  }
+  
+  const savedUserId = localStorage.getItem('tiger_current_user');
+  if (savedUserId) {
+    const u = users.find(x => x.id === savedUserId);
+    if (u) {
+      loggedInUser = u;
+      showModuleSelector();
+      return;
+    }
+  }
+  
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('module-selector').style.display = 'none';
+}
+
+window.appLogin = function() {
+  const userId = document.getElementById('login-user-select').value;
+  const pin = document.getElementById('login-pin').value;
+  let users = JSON.parse(localStorage.getItem('tiger_users_config')) || [];
+  const u = users.find(x => x.id === userId);
+  
+  if (!u) { showNotification('Selecione um usuário.', 'error'); return; }
+  if (u.pin !== pin) { showNotification('PIN incorreto!', 'error'); return; }
+  
+  loggedInUser = u;
+  localStorage.setItem('tiger_current_user', u.id);
+  showModuleSelector();
+};
+
+window.appLogout = function() {
+  localStorage.removeItem('tiger_current_user');
+  loggedInUser = null;
+  document.getElementById('login-pin').value = '';
+  document.getElementById('login-user-select').value = '';
+  document.getElementById('app-wrapper').style.display = 'none';
+  document.getElementById('module-selector').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+};
+
+function showModuleSelector() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-wrapper').style.display = 'none';
+  document.getElementById('module-selector').style.display = 'flex';
+  
+  const r = loggedInUser.roles || [];
+  // Restringir módulos
+  const cards = { 'transbordo': 'card-transbordo', 'interna': 'card-interna', 'externa': 'card-externa', 'visao': 'card-visao' };
+  for (const [mod, domId] of Object.entries(cards)) {
+    const el = document.getElementById(domId);
+    if (el) el.style.display = r.includes(mod) ? '' : 'none';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   loadTheme();
-  // Theme toggle on selector page
   document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+  
+  // Adicionar botão de logout no header
+  const headerRight = document.querySelector('.header-right');
+  if (headerRight) {
+    const logoutBtn = document.createElement('button');
+    logoutBtn.className = 'back-btn';
+    logoutBtn.textContent = 'Sair';
+    logoutBtn.onclick = appLogout;
+    headerRight.insertBefore(logoutBtn, headerRight.firstChild);
+  }
+  
+  initLogin();
 });
 </script>
 </body>

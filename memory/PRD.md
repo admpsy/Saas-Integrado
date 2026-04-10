@@ -31,12 +31,12 @@ Sistema SaaS multi-módulo para gestão de checklists de operações logísticas
    - Remover modelos existentes
    - Modelos aparecem no dropdown do Equipamento
 
-## Backlog / Próximas Implementações
-- P0: Migração para backend com MongoDB para persistência na nuvem
-- P1: Sistema de autenticação de usuários
-- P1: Sincronização multi-dispositivo
-- P2: Relatórios avançados com exportação
-- P2: Integração com email para notificações
+## Backlog / Próximas Implementações (Atualizado para Operação Offline-First)
+- P0: Transformação do site HTML em um PWA instalável com Service Worker para uso 100% offline.
+- P1: Login Local e Controle de Acesso por Módulo via PIN, bloqueando perfis não-Administradores na tela inicial.
+- P1: Aprimoramento da Exportação (Geração de Planilhas CSV/Excel) no Dashboard e Histórico.
+- P2: Integração com cliente de Email local (abrir nativo via link dinâmico).
+- **Cancelados/Pausados:** Backend com MongoDB e Sincronização multi-dispositivo não fazem mais parte do escopo atual devido à falta de investimentos na nuvem.
 
 ## Arquivos Principais
 - `/app/frontend/public/app.html` - Aplicação principal (HTML único)
