@@ -538,6 +538,12 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
       <div class="module-desc">Dashboard consolidado com dados dos 3 módulos integrados.</div>
       <span class="module-badge badge-orange">Analytics</span>
     </div>
+    <div class="module-card" id="card-admin" onclick="selectModule('admin')">
+      <div class="module-icon">⚙️</div>
+      <div class="module-name">Administração</div>
+      <div class="module-desc">Controle de acessos, senhas e permissões do sistema.</div>
+      <span class="module-badge badge-pending">Admin</span>
+    </div>
   </div>
 </div>
 
@@ -679,26 +685,6 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
 <div id="configuracoes" class="tab-content">
   <h1 class="page-title">⚙️ Configurações</h1>
   <p class="page-subtitle">Gerencie clientes, responsáveis, produtos e modelos de equipamentos do módulo Transbordo.</p>
-  <!-- USUÁRIOS -->
-  <div class="section-card" id="admin-users-section" style="display:none;">
-    <div class="section-header"><div class="section-icon">🔐</div><h3 class="section-title">Controle de Usuários</h3></div>
-    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:flex-end;">
-      <div style="flex:1;min-width:150px;"><label style="font-size:12px;color:var(--text-muted);">Nome do Usuário</label><br><input type="text" id="cfg-user-name" placeholder="Ex: João Silva" style="width:100%;"></div>
-      <div style="flex:1;min-width:100px;"><label style="font-size:12px;color:var(--text-muted);">PIN</label><br><input type="password" id="cfg-user-pin" placeholder="****" inputmode="numeric" style="width:100%;"></div>
-      <div style="flex:2;min-width:200px;"><label style="font-size:12px;color:var(--text-muted);">Módulos Permitidos</label><br>
-        <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;">
-          <input type="checkbox" id="role-transbordo" value="transbordo" checked> <label for="role-transbordo">Transbordo</label>
-          <input type="checkbox" id="role-interna" value="interna" checked> <label for="role-interna">Interna</label>
-          <input type="checkbox" id="role-externa" value="externa" checked> <label for="role-externa">Externa</label>
-          <input type="checkbox" id="role-visao" value="visao" checked> <label for="role-visao">Painel</label>
-          <input type="checkbox" id="role-config" value="config"> <label for="role-config">Admin</label>
-        </div>
-      </div>
-      <button class="btn btn-primary" onclick="cfgAddUser()">+ Novo Usuário</button>
-    </div>
-    <div id="cfg-users-list"></div>
-  </div>
-
   <!-- CLIENTES -->
   <div class="section-card">
     <div class="section-header"><div class="section-icon">🏢</div><h3 class="section-title">Clientes</h3></div>
@@ -737,6 +723,31 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
       <button class="btn btn-primary" onclick="cfgAdd('modelos','cfg-modelo-input','cfg-modelos-list')">+ Adicionar</button>
     </div>
     <div id="cfg-modelos-list"></div>
+  </div>
+</div>
+
+<!-- ─── TAB: ADMINISTRAÇÃO (Usuários) ─── -->
+<div id="admin-tab" class="tab-content">
+  <h1 class="page-title">⚙️ Administração</h1>
+  <p class="page-subtitle">Controle os usuários e acessos aos diferentes módulos do Tiger Rentank.</p>
+  
+  <div class="section-card" id="admin-users-section" style="display:none;">
+    <div class="section-header"><div class="section-icon">🔐</div><h3 class="section-title">Controle de Usuários</h3></div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:flex-end;">
+      <div style="flex:1;min-width:150px;"><label style="font-size:12px;color:var(--text-muted);">Nome do Usuário</label><br><input type="text" id="cfg-user-name" placeholder="Ex: João Silva" style="width:100%;"></div>
+      <div style="flex:1;min-width:100px;"><label style="font-size:12px;color:var(--text-muted);">PIN</label><br><input type="password" id="cfg-user-pin" placeholder="****" inputmode="numeric" style="width:100%;"></div>
+      <div style="flex:2;min-width:200px;"><label style="font-size:12px;color:var(--text-muted);">Módulos Permitidos</label><br>
+        <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;">
+          <input type="checkbox" id="role-transbordo" value="transbordo" checked> <label for="role-transbordo">Transbordo</label>
+          <input type="checkbox" id="role-interna" value="interna" checked> <label for="role-interna">Interna</label>
+          <input type="checkbox" id="role-externa" value="externa" checked> <label for="role-externa">Externa</label>
+          <input type="checkbox" id="role-visao" value="visao" checked> <label for="role-visao">Painel</label>
+          <input type="checkbox" id="role-config" value="config"> <label for="role-config">Admin</label>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="cfgAddUser()">+ Adicionar Usuário</button>
+    </div>
+    <div id="cfg-users-list"></div>
   </div>
 </div>
 
@@ -1046,6 +1057,10 @@ const dbClear  = (store)     => dbOp(store, 'readwrite', s => s.clear());
 //  SELEÇÃO DE MÓDULO
 // ════════════════════════════════════════════════════════════
 function selectModule(modKey) {
+  if (modKey === 'admin') {
+    openAdminGeral();
+    return;
+  }
   if (modKey === 'visao') {
     openVisaoGeral();
     return;
@@ -1090,6 +1105,26 @@ function backToSelector() {
   document.getElementById('module-selector').style.display = 'flex';
   document.documentElement.style.setProperty('--mod-color', 'var(--yellow)');
   document.documentElement.style.setProperty('--mod-glow', 'var(--yellow-glow)');
+}
+
+function openAdminGeral() {
+  currentModule = { name: 'Administração', color: 'admin', cssColor: '#EF4444', cssGlow: 'rgba(239, 68, 68, 0.22)' };
+  document.getElementById('module-selector').style.display = 'none';
+  document.getElementById('app-wrapper').style.display = 'block';
+  document.documentElement.style.setProperty('--mod-color', '#EF4444');
+  document.documentElement.style.setProperty('--mod-glow', 'rgba(239, 68, 68, 0.22)');
+  
+  const tag = document.getElementById('mod-tag');
+  tag.textContent = '⚙️ Administração';
+  tag.className = 'mod-tag'; tag.style.background = 'rgba(239, 68, 68,.15)'; tag.style.color = '#EF4444'; tag.style.border = '1px solid #EF4444';
+  
+  document.getElementById('main-nav').innerHTML = `<a href="#" class="nav-tab active" data-tab="admin-tab"><span>🔐</span> Controle de Usuários</a>`;
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('admin-tab').classList.add('active');
+  document.getElementById('progress-wrap').style.display = 'none';
+  document.querySelectorAll('.nav-tab').forEach(t => t.addEventListener('click', e => e.preventDefault()));
+  document.getElementById('btn-trocar').addEventListener('click', backToSelector);
+  cfgRenderUsers();
 }
 
 function openVisaoGeral() {
@@ -2816,7 +2851,7 @@ function showModuleSelector() {
   
   const r = loggedInUser.roles || [];
   // Restringir módulos
-  const cards = { 'transbordo': 'card-transbordo', 'interna': 'card-interna', 'externa': 'card-externa', 'visao': 'card-visao' };
+  const cards = { 'transbordo': 'card-transbordo', 'interna': 'card-interna', 'externa': 'card-externa', 'visao': 'card-visao', 'config': 'card-admin' };
   for (const [mod, domId] of Object.entries(cards)) {
     const el = document.getElementById(domId);
     if (el) el.style.display = r.includes(mod) ? '' : 'none';
