@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tiger-rentank-v2';
+const CACHE_NAME = 'tiger-rentank-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

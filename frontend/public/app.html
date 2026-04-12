@@ -1445,7 +1445,7 @@ function addEquipamento() {
   if (select && currentModule && currentModule.color === 'interna') {
     select.addEventListener('change', function() {
       const val = this.value.toUpperCase();
-      const contentoresTypes = ['RIET', 'FRAC', 'GAPE', 'HELI', 'OCTO'];
+      const contentoresTypes = ['RIET', 'FRAC', 'GAPE', 'HELI', 'OCTO', 'TANQUE'];
       const isContentor = contentoresTypes.some(t => val.includes(t));
 
       const inspecaoCard = document.getElementById('inspecao-itens').closest('.section-card');
