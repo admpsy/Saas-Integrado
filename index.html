@@ -683,32 +683,33 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
   <div id="visao-content"></div>
 </div>
 
-<!-- ─── TAB: CONFIGURAÇÕES (Transbordo) ─── -->
+<!-- ─── TAB: CONFIGURAÇÕES (Transbordo / Externa) ─── -->
 <div id="configuracoes" class="tab-content">
   <h1 class="page-title">⚙️ Configurações</h1>
-  <p class="page-subtitle">Gerencie clientes, responsáveis, produtos e modelos de equipamentos do módulo Transbordo.</p>
+  <p class="page-subtitle">Gerencie os dados cadastrais do módulo.</p>
+
   <!-- CLIENTES -->
-  <div class="section-card">
-    <div class="section-header"><div class="section-icon">🏢</div><h3 class="section-title">Clientes</h3></div>
+  <div class="section-card" id="cfg-section-clientes">
+    <div class="section-header"><div class="section-icon">🏢</div><h3 class="section-title" id="cfg-title-clientes">Clientes</h3></div>
     <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
       <input type="text" id="cfg-cliente-input" placeholder="Nome do cliente..." style="flex:1;min-width:200px;">
-      <button class="btn btn-primary" onclick="cfgAdd('clientes','cfg-cliente-input','cfg-clientes-list')">+ Adicionar</button>
+      <button class="btn btn-primary" id="cfg-btn-add-cliente">+ Adicionar</button>
     </div>
     <div id="cfg-clientes-list"></div>
   </div>
 
   <!-- RESPONSÁVEIS -->
-  <div class="section-card">
-    <div class="section-header"><div class="section-icon">👷</div><h3 class="section-title">Responsáveis</h3></div>
+  <div class="section-card" id="cfg-section-responsaveis">
+    <div class="section-header"><div class="section-icon">👷</div><h3 class="section-title" id="cfg-title-responsaveis">Responsáveis</h3></div>
     <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
       <input type="text" id="cfg-responsavel-input" placeholder="Nome do responsável..." style="flex:1;min-width:200px;">
-      <button class="btn btn-primary" onclick="cfgAdd('responsaveis','cfg-responsavel-input','cfg-responsaveis-list')">+ Adicionar</button>
+      <button class="btn btn-primary" id="cfg-btn-add-responsavel">+ Adicionar</button>
     </div>
     <div id="cfg-responsaveis-list"></div>
   </div>
 
   <!-- PRODUTOS -->
-  <div class="section-card">
+  <div class="section-card" id="cfg-section-produtos">
     <div class="section-header"><div class="section-icon">📦</div><h3 class="section-title">Produtos</h3></div>
     <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
       <input type="text" id="cfg-produto-input" placeholder="Nome do produto..." style="flex:1;min-width:200px;">
@@ -718,7 +719,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
   </div>
 
   <!-- MODELOS DE EQUIPAMENTOS -->
-  <div class="section-card">
+  <div class="section-card" id="cfg-section-modelos">
     <div class="section-header"><div class="section-icon">🔧</div><h3 class="section-title">Modelos de Equipamentos</h3></div>
     <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
       <input type="text" id="cfg-modelo-input" placeholder="Nome do modelo de equipamento..." style="flex:1;min-width:200px;">
@@ -980,13 +981,13 @@ const MODULES = {
     draftKey: 'tiger_draft_externa',
     pdfTitle: 'RELATÓRIO DE ATENDIMENTO EXTERNO',
     campos: [
-      { id:'inspetor1',    label:'Inspeção Tiger 1 *',  type:'text', placeholder:'Nome do colaborador',      span:1 },
-      { id:'inspetor2',    label:'Inspeção Tiger 2',     type:'text', placeholder:'Segundo colaborador',      span:1 },
+      { id:'inspetor1',    label:'Inspeção Tiger 1 *',  type:'select', options:[''],      span:1 },
+      { id:'inspetor2',    label:'Inspeção Tiger 2',     type:'select', options:[''],      span:1 },
       { id:'data',         label:'Data *',               type:'date', placeholder:'',                         span:1 },
       { id:'placa',        label:'Veículo / Placa *',   type:'text', placeholder:'ABC-1234', maxlength:'8',  span:1 },
       { id:'horaChegada',  label:'Hora de Chegada *',   type:'text', placeholder:'HH:MM', inputmode:'numeric', maxlength:'5', span:1 },
       { id:'horaSaida',    label:'Hora de Saída *',     type:'text', placeholder:'HH:MM', inputmode:'numeric', maxlength:'5', span:1 },
-      { id:'cliente',      label:'Cliente *',            type:'text', placeholder:'Nome completo do cliente', span:2 },
+      { id:'cliente',      label:'Cliente *',            type:'select', options:[''], span:2 },
     ],
     servicos: ['CERTIFICAÇÃO VISUAL','CERTIFICAÇÃO REMOTA','PARTÍCULA MAGNÉTICA','LÍQUIDO PENETRANTE','CORRENTE PARASITA','MANUTENÇÃO PREVENTIVA','MANUTENÇÃO CORRETIVA','INSTALAÇÃO DE GPS','SUBSTITUIÇÃO DE ESLINGA','AVALIAÇÃO TÉCNICA'],
     hasServicos: true,
@@ -1302,8 +1303,8 @@ function rebindInspecaoEvents() {
 function buildForm() {
   const mod = currentModule;
 
-  // Reset nav — transbordo tem aba extra de Configurações
-  if (mod.color === 'transbordo') {
+  // Reset nav — transbordo e externa têm aba extra de Configurações
+  if (mod.color === 'transbordo' || mod.color === 'externa') {
     document.getElementById('main-nav').innerHTML = `
       <a href="#" class="nav-tab active" data-tab="checklist"><span>📋</span> Checklist</a>
       <a href="#" class="nav-tab" data-tab="historico"><span>📂</span> Histórico</a>
@@ -1343,8 +1344,8 @@ function buildForm() {
   const dataEl = document.getElementById('data');
   if (dataEl) dataEl.value = new Date().toISOString().split('T')[0];
 
-  // Popular selects de configuração (transbordo)
-  if (mod.color === 'transbordo') cfgUpdateSelects();
+  // Popular selects de configuração (transbordo e externa)
+  if (mod.color === 'transbordo' || mod.color === 'externa') cfgUpdateSelects();
 
   // ── Remover seção antiga de inspeção do equipamento (não mais usado)
   let secEqInsp = document.getElementById('section-equip-inspecao');
@@ -2340,12 +2341,53 @@ function fmtDate(d) {
 const CFG_KEY = 'tiger_transbordo_config';
 
 function cfgLoad() {
+  const defaults = { 
+    clientes:[], 
+    responsaveis:[], 
+    produtos:[], 
+    modelos:[],
+    inspetores_externa: [
+      'Altair da Conceição', 'Edvan Barreto', 'Filipe Conforte', 'Geilson Chiaretti', 'Igor Santos',
+      'Jerlem Max Chiaretti', 'Jhony Roger', 'Jocemir Junior', 'Leandro Chagas', 'Luciano Moura',
+      'Moises Machado', 'Rafael Guimarães', 'Rafael Brasilino', 'Rhuan Soares', 'Rodrigo Abreu',
+      'Silvano Alves', 'Wanderson Daudt', 'Yago Abreu'
+    ],
+    clientes_externa: [
+      'Abb', 'Alliance', 'Archer', 'Arkema', 'Atlas Copco', 'Baker - Bela Vista', 'Baker - Ecologika',
+      'Baker - Intertank', 'Baker - Lagomar', 'Baker - Mutum', 'Baker - Transforma', 'Base - Caxias',
+      'Base - Pojuca', 'Belov', 'Boa Praça', 'Brentag', 'Bridon', 'Bunker One', 'Bw Energy', 'Champion',
+      'Champion - Porto de Vitória', 'Champion - Porto do Açu', 'Clariant', 'Clariant - Deaçu',
+      'Clariant - Intertank', 'Clariant - Porto de Vitória', 'Clariant - Porto do Açu', 'CM Couto',
+      'Constellation', 'Dof', 'Dof - Caxias', 'Dof - Transforma', 'Dorf Ketal', 'Drill-Quip', 'EPM',
+      'Equinor', 'Equinor - Porto do Açu', 'Expro', 'Foresea', 'Fratelli', 'Halliburton',
+      'Halliburton - Ecologika', 'Halliburton - Paiol', 'Halliburton - Tubosdrill', 'Helix', 'IKM',
+      'Intermoor', 'Man Energy', 'Marine', 'MISC - Ecologika', 'Modec - Cajú', 'Modec - Caxias',
+      'Modec - MC', 'Modec - Transforma', 'Neolubes', 'Noble', 'Oceaneering', 'One Subsea', 'Primordial',
+      'Prio - Cajú', 'Prio - Porto do Açu', 'Prio - Slb', 'PróInsp', 'Prosafe',
+      'Reda Energy - Porto do Açu', 'Royal IHC', 'Saipem', 'Sapura', 'Sea 1', 'Seadrill', 'Seagems',
+      'Shell - Porto de Vitória', 'Siem', 'Slb', 'Slb - Ecologika', 'Slb - Porto do Açu', 'Subsea-7',
+      'Subsea-7 - Dome', 'Subsea-7 - Transforma', 'Superior Energy', 'Technip', 'Technip - Caxias',
+      'Technip - Curvelo', 'Technip - Flexbras', 'Technip - Spoolbase', 'Technip - Transforma',
+      'Techno Suporte', 'Tiger Rentank', 'Tranter', 'Tubacex', 'Uniflex', 'Uniflex - Curvelo',
+      'Uniflex - Gaspar', 'Valaris', 'Vallourec 01', 'Vallourec 04', 'Vallourec 05', 'Veolia - Intertank',
+      'Veolia - Modec', 'Veolia - Porto do Açu', 'Veolia - Tw', 'Vitória Ambiental', 'Volcan',
+      'Weatherford', 'Wilhelmsen', 'Wilson Sons', 'Yinson - Base 01', 'Yinson - Base 02',
+      'Yinson - Transforma', 'GBJ', 'Slb - Deaçu', 'Innovex', 'Brenntag'
+    ]
+  };
   try { 
-    const data = JSON.parse(localStorage.getItem(CFG_KEY)) || { clientes:[], responsaveis:[], produtos:[], modelos:[] }; 
-    if (!data.modelos) data.modelos = [];
+    const data = JSON.parse(localStorage.getItem(CFG_KEY)) || defaults; 
+    // Garantir que novas chaves existam se o localStorage já tiver dados antigos
+    Object.keys(defaults).forEach(k => {
+      if (!data[k]) data[k] = defaults[k];
+      else if (Array.isArray(data[k]) && data[k].length === 0 && defaults[k].length > 0) {
+        // Se a lista estiver vazia e o default tiver dados, re-povoa (opcional, mas ajuda na migração)
+        data[k] = defaults[k];
+      }
+    });
     return data;
   }
-  catch(e) { return { clientes:[], responsaveis:[], produtos:[], modelos:[] }; }
+  catch(e) { return defaults; }
 }
 function cfgSave(data) { localStorage.setItem(CFG_KEY, JSON.stringify(data)); }
 
@@ -2392,10 +2434,40 @@ function cfgRenderList(tipo, listId) {
 }
 
 function cfgRenderAll() {
-  cfgRenderList('clientes',    'cfg-clientes-list');
-  cfgRenderList('responsaveis','cfg-responsaveis-list');
-  cfgRenderList('produtos',    'cfg-produtos-list');
-  cfgRenderList('modelos',     'cfg-modelos-list');
+  if (!currentModule) return;
+  const isExterna = currentModule.color === 'externa';
+  
+  // Update Config subtitle
+  const configSubtitle = document.querySelector('#configuracoes .page-subtitle');
+  if (configSubtitle) {
+    configSubtitle.textContent = 'Gerencie os dados cadastrais do módulo ' + currentModule.name + '.';
+  }
+
+  // Titulos e labels
+  document.getElementById('cfg-title-clientes').textContent = isExterna ? 'Clientes (Externa)' : 'Clientes';
+  document.getElementById('cfg-title-responsaveis').textContent = isExterna ? 'Inspetores (Externa)' : 'Responsáveis';
+  document.getElementById('cfg-cliente-input').placeholder = isExterna ? 'Nome do cliente externa...' : 'Nome do cliente...';
+  document.getElementById('cfg-responsavel-input').placeholder = isExterna ? 'Nome do inspetor...' : 'Nome do responsável...';
+
+  // Configurar botões de adicionar
+  document.getElementById('cfg-btn-add-cliente').onclick = () => cfgAdd(isExterna ? 'clientes_externa' : 'clientes', 'cfg-cliente-input', 'cfg-clientes-list');
+  document.getElementById('cfg-btn-add-responsavel').onclick = () => cfgAdd(isExterna ? 'inspetores_externa' : 'responsaveis', 'cfg-responsavel-input', 'cfg-responsaveis-list');
+
+  // Render lists
+  cfgRenderList(isExterna ? 'clientes_externa' : 'clientes',    'cfg-clientes-list');
+  cfgRenderList(isExterna ? 'inspetores_externa' : 'responsaveis', 'cfg-responsaveis-list');
+  
+  // Show/Hide products and models (only for transbordo)
+  const productSec = document.getElementById('cfg-section-produtos');
+  const modelSec = document.getElementById('cfg-section-modelos');
+  if (productSec) productSec.style.display = isExterna ? 'none' : 'block';
+  if (modelSec) modelSec.style.display = isExterna ? 'none' : 'block';
+
+  if (!isExterna) {
+    cfgRenderList('produtos',    'cfg-produtos-list');
+    cfgRenderList('modelos',     'cfg-modelos-list');
+  }
+  
   cfgRenderUsers();
 }
 
@@ -2454,22 +2526,37 @@ window.cfgRemoveUser = function(id) {
 };
 
 function cfgUpdateSelects() {
-  if (!currentModule || currentModule.color !== 'transbordo') return;
+  if (!currentModule || (currentModule.color !== 'transbordo' && currentModule.color !== 'externa')) return;
   const cfg = cfgLoad();
-  const maps = [
-    { id:'cliente',    key:'clientes' },
-    { id:'responsavel',key:'responsaveis' },
-    { id:'produto',    key:'produtos' },
-  ];
+  
+  let maps = [];
+  if (currentModule.color === 'transbordo') {
+    maps = [
+      { id:'cliente',    key:'clientes' },
+      { id:'responsavel',key:'responsaveis' },
+      { id:'produto',    key:'produtos' },
+    ];
+  } else if (currentModule.color === 'externa') {
+    maps = [
+      { id:'inspetor1',  key:'inspetores_externa' },
+      { id:'inspetor2',  key:'inspetores_externa' },
+      { id:'cliente',    key:'clientes_externa' },
+    ];
+  }
+  
   maps.forEach(({ id, key }) => {
     const el = document.getElementById(id);
     if (!el) return;
-    let isResp = id === 'responsavel';
-    let options = cfg[key];
+    
+    let isResp = (id === 'responsavel' || id === 'inspetor1' || id === 'inspetor2');
+    let options = cfg[key] || [];
+    
+    // Adicionar usuário logado se for campo de responsável/inspetor
     if (isResp && loggedInUser && !options.includes(loggedInUser.name)) {
       options.push(loggedInUser.name);
     }
-    const current = (isResp && loggedInUser) ? loggedInUser.name : el.value;
+    
+    const current = el.value || (isResp && loggedInUser ? loggedInUser.name : '');
     
     el.innerHTML = `<option value="">Selecione...</option>` +
       options.map(v => `<option value="${v}"${v===current?' selected':''}>${v}</option>`).join('');
@@ -2488,7 +2575,7 @@ function switchTab(tabId) {
   if (tabId==='historico') updateHistoryList();
   if (tabId==='dashboard') updateDashboard();
   if (tabId==='configuracoes') { cfgRenderAll(); }
-  if (tabId==='checklist' && currentModule?.color==='transbordo') cfgUpdateSelects();
+  if (tabId==='checklist' && (currentModule?.color==='transbordo' || currentModule?.color==='externa')) cfgUpdateSelects();
 }
 
 function showNotification(msg, type='success') {
@@ -2657,84 +2744,133 @@ window.generatePDF = function(id) {
     }
 
     // ── EQUIPAMENTOS (externa + interna + transbordo) com fotos por equipamento
+    // ── EQUIPAMENTOS (externa + interna + transbordo) com layout reestruturado
     if(currentModule.hasEquipamentos && c.equipamentos && c.equipamentos.length) {
       y=secHead('Equipamentos e Certificações',y);
-      const fw=32,fh=24,gap=2.5,fpl=5; // 5 fotos por linha
 
       c.equipamentos.forEach((eq,idx)=>{
         const hasObs = eq.obs && eq.obs.trim();
-        const obsLines = hasObs ? splitTxt('Obs: '+eq.obs, CW-10) : [];
+        const obsLines = hasObs ? splitTxt('Obs: '+eq.obs, 100) : [];
         
         // Calcular dias restantes para certificações
         const diasCert = calcDiasRestantes(eq.certVenc);
         const diasEslinga = calcDiasRestantes(eq.eslingaVenc);
         
-        let bh = 52 + (obsLines.length>0 ? obsLines.length*4+2 : 0);
-        if(eq.fotos && eq.fotos.length){
-          const rows = Math.ceil(eq.fotos.length/fpl);
-          bh += 10 + (rows * (fh+gap));
-        }
+        // Novas dimensões para o layout reestruturado
+        const colLeftW = 105;
+        const colRightW = CW - colLeftW - 5;
+        const colRightX = mg + colLeftW + 5;
+        
+        const photoW = (colRightW - 4) / 2;
+        const photoH = photoW * 0.75; // proporção 4:3
+        const numFotos = eq.fotos ? eq.fotos.length : 0;
+        const photoRows = Math.ceil(Math.min(numFotos, 4) / 2);
+        const photosHeight = photoRows * (photoH + 3);
+        
+        let infoHeight = 26 + 22 + 10; // Box 1 + Box 2 + Box 3
+        if (obsLines.length) infoHeight += obsLines.length * 4 + 4;
+        
+        let bh = Math.max(infoHeight, photosHeight) + 12; 
+        
+        chk(bh + 5);
+        
+        // Card Principal (Fundo)
+        doc.setFillColor(252, 252, 250); doc.setDrawColor(215, 215, 210); doc.setLineWidth(0.25);
+        doc.roundedRect(mg, y, CW, bh, 2, 2, 'FD');
 
-        chk(bh+4);
-        doc.setFillColor(249,249,247); doc.setDrawColor(215,215,210); doc.setLineWidth(0.25);
-        doc.roundedRect(mg,y,CW,bh,2,2,'FD');
-        doc.setFillColor(...mc.accent); doc.roundedRect(mg+3,y+3,30,7,1.5,1.5,'F');
-        setFont(8,'bold',mc.accentTxt); txt('EQUIP. '+(idx+1),mg+5,y+8);
-        if(eq.status) pill(eq.status,W-mg-4,y+8,eq.status);
+        // Título EQUIP. X (Pill style)
+        doc.setFillColor(255, 204, 0); doc.setDrawColor(255, 204, 0);
+        doc.roundedRect(mg + 4, y + 4, 32, 7, 1.5, 1.5, 'FD');
+        setFont(8, 'bold', [17, 17, 17]); txt('EQUIP. ' + (idx + 1), mg + 20, y + 9, { align: 'center' });
         
-        setFont(7.5,'normal',[100,100,100]);
-        txt('Modelo',mg+5,y+16); txt('N° de Serie / Chassis',mg+5,y+24); 
-        txt('Eslinga',mg+5,y+32); txt('GPS',mg+5,y+40);
+        if(eq.status) pill(eq.status, mg + colLeftW - 4, y + 9, eq.status);
+
+        let curY = y + 15;
         
-        txt('Cert.',mg+CW/2,y+16); txt('Venc.',mg+CW/2,y+24); 
-        txt('Cert.Esl.',mg+CW/2,y+32); txt('Venc.Esl.',mg+CW/2+42,y+32);
+        // --- COLUNA ESQUERDA (INFO) ---
         
-        setFont(8.5,'bold');
-        txt(eq.modelo||'—',mg+45,y+16); txt(eq.serie||'—',mg+45,y+24); 
-        txt(eq.eslinga||'—',mg+45,y+32); txt(eq.gps||'—',mg+45,y+40);
+        // BOX 1: Equipamento (N° Serie, Modelo, Cert, Venc)
+        doc.setFillColor(255, 255, 255); doc.setDrawColor(230, 230, 230); doc.setLineWidth(0.2);
+        doc.roundedRect(mg + 4, curY, colLeftW - 8, 24, 1, 1, 'FD');
+        setFont(7.5, 'normal', [120, 120, 120]);
+        txt('Nº de Serie / Chassis', mg + 8, curY + 6);
+        txt('Modelo', mg + 8, curY + 12);
+        txt('Cert.', mg + 8, curY + 20);
+        txt('Venc.', mg + colLeftW/2 + 4, curY + 20);
         
-        txt(fmtDate(eq.certData)||'—',mg+CW/2+14,y+16); txt(fmtDate(eq.certVenc)||'—',mg+CW/2+14,y+24);
-        txt(fmtDate(eq.eslingaData)||'—',mg+CW/2+16,y+32); txt(fmtDate(eq.eslingaVenc)||'—',mg+CW/2+59,y+32);
+        setFont(8.5, 'bold', [30, 30, 30]);
+        txt(eq.serie || '—', mg + colLeftW - 8, curY + 6, { align: 'right' });
+        txt(eq.modelo || '—', mg + colLeftW - 8, curY + 12, { align: 'right' });
+        txt(fmtDate(eq.certData) || '—', mg + 18, curY + 20);
+        txt(fmtDate(eq.certVenc) || '—', mg + colLeftW/2 + 16, curY + 20);
         
-        // Adicionar dias restantes
-        let diasY = y + 46;
         if (diasCert !== null) {
-          const corCert = diasCert > 120 ? [22,163,74] : diasCert > 30 ? [234,179,8] : [220,38,38];
-          setFont(7,'normal', corCert);
-          doc.setCharSpace(0);
-          const txtCert = diasCert > 0 ? diasCert+' dias (Cert.)' : 'Vencido '+Math.abs(diasCert)+' dias';
-          txt(txtCert, mg+CW/2, diasY);
+          const corCert = diasCert > 0 ? [22, 163, 74] : [220, 38, 38];
+          setFont(6.5, 'normal', corCert);
+          const txtCert = diasCert > 0 ? diasCert + ' dias' : 'Vencido ' + Math.abs(diasCert) + ' dias';
+          txt(txtCert, mg + colLeftW - 8, curY + 22.5, { align: 'right' });
         }
+        curY += 28;
+
+        // BOX 2: Eslinga (Eslinga, Cert.Esl, Venc)
+        doc.setFillColor(255, 255, 255); doc.roundedRect(mg + 4, curY, colLeftW - 8, 18, 1, 1, 'FD');
+        setFont(7.5, 'normal', [120, 120, 120]);
+        txt('Eslinga', mg + 8, curY + 6);
+        txt('Cert.Esl.', mg + 8, curY + 14);
+        txt('Venc.', mg + colLeftW/2 + 4, curY + 14);
+        
+        setFont(8.5, 'bold', [30, 30, 30]);
+        txt(eq.eslinga || '—', mg + colLeftW - 8, curY + 6, { align: 'right' });
+        txt(fmtDate(eq.eslingaData) || '—', mg + 22, curY + 14);
+        txt(fmtDate(eq.eslingaVenc) || '—', mg + colLeftW/2 + 16, curY + 14);
+        
         if (diasEslinga !== null) {
-          const corEsl = diasEslinga > 120 ? [22,163,74] : diasEslinga > 30 ? [234,179,8] : [220,38,38];
-          setFont(7,'normal', corEsl);
-          doc.setCharSpace(0);
-          const txtEsl = diasEslinga > 0 ? diasEslinga+' dias (Esl.)' : 'Vencido '+Math.abs(diasEslinga)+' dias';
-          txt(txtEsl, mg+CW/2+42, diasY);
+          const corEsl = diasEslinga > 0 ? [22, 163, 74] : [220, 38, 38];
+          setFont(6.5, 'normal', corEsl);
+          const txtEsl = diasEslinga > 0 ? diasEslinga + ' dias (Esl.)' : 'Vencido ' + Math.abs(diasEslinga) + ' dias';
+          txt(txtEsl, mg + colLeftW - 8, curY + 17, { align: 'right' });
+        }
+        curY += 22;
+
+        // BOX 3: GPS
+        doc.setFillColor(255, 255, 255); doc.roundedRect(mg + 4, curY, colLeftW - 8, 8, 1, 1, 'FD');
+        setFont(7.5, 'normal', [120, 120, 120]);
+        txt('GPS', mg + 8, curY + 5.5);
+        setFont(8.5, 'bold', [30, 30, 30]);
+        txt(eq.gps || '—', mg + colLeftW - 8, curY + 5.5, { align: 'right' });
+        curY += 12;
+
+        if(obsLines.length){ 
+          setFont(7, 'bold', [185, 35, 35]); 
+          doc.text(obsLines, mg + 4, curY); 
+        }
+
+        // --- COLUNA DIREITA (FOTOS) ---
+        if (eq.fotos && eq.fotos.length) {
+          eq.fotos.forEach((foto, fi) => {
+            if (fi >= 4) return; // Mockup mostra grade 2x2
+            const row = Math.floor(fi / 2);
+            const col = fi % 2;
+            const fx = colRightX + col * (photoW + 3);
+            const fy = y + 4 + row * (photoH + 3);
+            
+            doc.setFillColor(245, 245, 240); doc.setDrawColor(200, 200, 200);
+            doc.roundedRect(fx, fy, photoW, photoH, 2, 2, 'FD');
+            
+            try {
+              if (foto?.base64?.startsWith('data:image')) {
+                const fmt = foto.base64.includes('/png') ? 'PNG' : 'JPEG';
+                doc.addImage(foto.base64, fmt, fx + 1, fy + 1, photoW - 2, photoH - 2);
+              }
+            } catch (e) {}
+            
+            // Box de numeração
+            doc.setFillColor(20, 20, 20); doc.roundedRect(fx + photoW - 9, fy + photoH - 7, 8, 5.5, 1, 1, 'F');
+            setFont(6, 'bold', [255, 255, 255]);
+            txt(String(fi + 1), fx + photoW - 5, fy + photoH - 3.5, { align: 'center' });
+          });
         }
         
-        let curY = y + 54;
-        if(obsLines.length){ setFont(7,'bold',[185,35,35]); doc.text(obsLines,mg+5,curY); curY += obsLines.length*4+2; }
-
-        // Fotos deste equipamento
-        if(eq.fotos && eq.fotos.length){
-          curY += 2;
-          setFont(7.5,'bold',[100,100,100]); txt('📷 Fotos',mg+5,curY);
-          curY += 6;
-          for(let row=0;row<Math.ceil(eq.fotos.length/fpl);row++){
-            for(let col=0;col<fpl;col++){
-              const fi=row*fpl+col;
-              if(fi>=eq.fotos.length) break;
-              const foto=eq.fotos[fi], xPos=mg+5+col*(fw+gap), yPos=curY;
-              doc.setFillColor(245,245,240); doc.setDrawColor(208,208,200); doc.setLineWidth(0.25);
-              doc.roundedRect(xPos,yPos,fw,fh,2,2,'FD');
-              try{ if(foto?.base64?.startsWith('data:image')){ const fmt=foto.base64.includes('/png')?'PNG':'JPEG'; doc.addImage(foto.base64,fmt,xPos+1,yPos+1,fw-2,fh-2); } }catch(e){}
-              doc.setFillColor(20,20,20); doc.roundedRect(xPos+fw-9,yPos+fh-7,8,5.5,1,1,'F');
-              setFont(6,'bold',[255,255,255]); txt(String(fi+1),xPos+fw-5.5,yPos+fh-3.5,{align:'center'});
-            }
-            curY += fh+gap;
-          }
-        }
         y += bh + 4;
       });
     }
