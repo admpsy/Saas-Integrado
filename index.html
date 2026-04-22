@@ -446,9 +446,44 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
   .section-card{padding:26px;}
   .page-title{font-size:26px;}
 }
+
+/* ── UPDATE BANNER ─────────────────────────────────────────── */
+#update-banner{
+  position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  background:linear-gradient(135deg,#1a1a2e,#16213e);
+  border-top:2px solid var(--yellow);
+  padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;
+  transform:translateY(100%);transition:transform .4s cubic-bezier(.22,1,.36,1);
+  box-shadow:0 -4px 24px rgba(0,0,0,.5);
+}
+#update-banner.show{transform:translateY(0);}
+#update-banner .upd-text{display:flex;align-items:center;gap:10px;}
+#update-banner .upd-icon{font-size:22px;animation:spin 2s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+#update-banner .upd-msg{font-size:13px;color:#f0f0f0;}
+#update-banner .upd-msg strong{color:var(--yellow);font-family:'Syne',sans-serif;}
+#update-banner .upd-actions{display:flex;gap:8px;flex-shrink:0;}
+#btn-update-now{background:var(--yellow);color:#111;border:none;border-radius:8px;padding:8px 18px;font-family:'Syne',sans-serif;font-size:12px;font-weight:800;letter-spacing:.05em;cursor:pointer;transition:all .15s;text-transform:uppercase;}
+#btn-update-now:hover{filter:brightness(.9);}
+#btn-update-dismiss{background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;cursor:pointer;}
+#btn-update-dismiss:hover{color:var(--text);border-color:var(--border-active);}
 </style>
 </head>
 <body>
+
+<!-- ════ UPDATE BANNER ════ -->
+<div id="update-banner">
+  <div class="upd-text">
+    <span class="upd-icon">⚙️</span>
+    <span class="upd-msg"><strong>Nova versão disponível!</strong><br><span style="font-size:11px;opacity:.7;">Atualize para usar as últimas melhorias.</span></span>
+  </div>
+  <div class="upd-actions">
+    <button id="btn-update-dismiss">Depois</button>
+    <button id="btn-update-now">🔄 Atualizar Agora</button>
+  </div>
+</div>
 
 <!-- ════════════════════════════════════════════════════════
      NOTIFICATION
@@ -777,10 +812,50 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
 // ════════════════════════════════════════════════════════════
 //  SERVICE WORKER E PWA
 // ════════════════════════════════════════════════════════════
+// ── Detecção automática de atualização do Service Worker
+let swRegistration = null;
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(err => console.log('Erro SW', err));
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => {
+        swRegistration = reg;
+
+        // Verificar se já tem um SW aguardando (caso o usuário abra o app depois do push)
+        if (reg.waiting) showUpdateBanner(reg.waiting);
+
+        // Detectar novo SW instalando
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateBanner(newWorker);
+            }
+          });
+        });
+      })
+      .catch(err => console.log('Erro SW', err));
+
+    // Recarregar quando o novo SW assumir o controle
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) { refreshing = true; window.location.reload(); }
+    });
   });
+}
+
+function showUpdateBanner(worker) {
+  const banner = document.getElementById('update-banner');
+  if (!banner) return;
+  banner.classList.add('show');
+
+  document.getElementById('btn-update-now').onclick = () => {
+    banner.classList.remove('show');
+    worker.postMessage({ type: 'SKIP_WAITING' });
+  };
+  document.getElementById('btn-update-dismiss').onclick = () => {
+    banner.classList.remove('show');
+  };
 }
 
 // ════════════════════════════════════════════════════════════
