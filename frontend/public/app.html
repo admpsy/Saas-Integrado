@@ -2525,30 +2525,43 @@ window.generatePDF = function(id) {
     // Calcular tempo total se tiver hora de chegada e saída
     const tempoTotal = calcTempoTotal(c.horaChegada, c.horaSaida);
     
-    campos.forEach((campo,i)=>{
-      let val=c[campo.id]||'—';
-      
-      // Formatar data em PT-BR
-      if (campo.type === 'date' && val && val !== '—') {
-        val = fmtDatePTBR(val);
+    // Renderiza campos em pares (2 colunas), com quebra de linha automática
+    const halfW = CW / 2 - 8;
+    let fieldPairs = [];
+    for (let i = 0; i < campos.length; i += 2) {
+      fieldPairs.push([campos[i], campos[i+1] || null]);
+    }
+    fieldPairs.forEach(([campoL, campoR]) => {
+      let valL = c[campoL.id] || '—';
+      if (campoL.type === 'date' && valL && valL !== '—') valL = fmtDatePTBR(valL);
+      if (campoL.id === 'horaSaida' && tempoTotal) valL = valL + '  (Tempo Total: ' + tempoTotal + ')';
+      const linesL = splitTxt(String(valL), halfW);
+
+      let linesR = [];
+      if (campoR) {
+        let valR = c[campoR.id] || '—';
+        if (campoR.type === 'date' && valR && valR !== '—') valR = fmtDatePTBR(valR);
+        if (campoR.id === 'horaSaida' && tempoTotal) valR = valR + '  (Tempo Total: ' + tempoTotal + ')';
+        linesR = splitTxt(String(valR), halfW);
       }
-      
-      // Adicionar tempo total ao lado de Hora de Saída
-      if (campo.id === 'horaSaida' && tempoTotal) {
-        val = val + '  (Tempo Total: ' + tempoTotal + ')';
+
+      const rowLines = Math.max(linesL.length, linesR.length);
+      const rowH = rowLines * 4.5 + 10;
+      chk(rowH);
+
+      setFont(7.5,'bold',[100,100,100]);
+      txt(campoL.label.replace(' *','').replace(' (automática)','').toUpperCase(), mg+2, y);
+      setFont(9,'normal',[30,30,30]);
+      doc.text(linesL, mg+2, y+5);
+
+      if (campoR) {
+        setFont(7.5,'bold',[100,100,100]);
+        txt(campoR.label.replace(' *','').replace(' (automática)','').toUpperCase(), mg+CW/2+4, y);
+        setFont(9,'normal',[30,30,30]);
+        doc.text(linesR, mg+CW/2+4, y+5);
       }
-      
-      chk(8);
-      if(i%2===0){
-        setFont(7.5,'bold',[100,100,100]); txt(campo.label.replace(' *','').replace(' (automática)','').toUpperCase(),mg+2,y);
-        setFont(9,'normal',[30,30,30]); txt(String(val),mg+2,y+5);
-      } else {
-        setFont(7.5,'bold',[100,100,100]); txt(campo.label.replace(' *','').replace(' (automática)','').toUpperCase(),mg+CW/2+4,y);
-        setFont(9,'normal',[30,30,30]); txt(String(val),mg+CW/2+4,y+5);
-        y+=14;
-      }
+      y += rowH;
     });
-    if(campos.length%2!==0) y+=14;
     y+=4;
 
     // ── INSPEÇÃO DO EQUIPAMENTO (transbordo)
@@ -2577,15 +2590,20 @@ window.generatePDF = function(id) {
     // ── SERVIÇOS (antes dos equipamentos)
     if(c.servicos && c.servicos.length && currentModule.hasServicos) {
       y=secHead('Serviços Realizados',y);
-      const cols=3, cw=CW/cols;
+      const svcColW = CW/3 - 6;
+      let svcCol = 0;
       c.servicos.forEach((s,i)=>{
-        chk(8);
-        const col=i%cols, row=Math.floor(i/cols);
-        if(i%cols===0 && i>0) y+=8;
-        setFont(7.5,'bold',[34,197,94]); txt('✓',mg+col*cw,y+row*0);
-        setFont(7.5,'normal',[30,30,30]); txt(s,mg+col*cw+6,y+row*0);
+        const svcLines = splitTxt(s, svcColW - 8);
+        const svcH = svcLines.length * 4.5 + 2;
+        if (svcCol === 0) chk(svcH + 2);
+        const xPos = mg + svcCol * (CW/3);
+        setFont(7.5,'bold',[34,197,94]); txt('✓', xPos, y);
+        setFont(7.5,'normal',[30,30,30]); doc.text(svcLines, xPos + 6, y);
+        svcCol++;
+        if (svcCol >= 3) { svcCol = 0; y += svcH + 3; }
       });
-      y+=12;
+      if (svcCol > 0) y += 9;
+      y += 4;
     }
 
     // ── EQUIPAMENTOS (externa + interna + transbordo) com fotos por equipamento
@@ -2746,7 +2764,7 @@ window.generatePDF = function(id) {
         y+=10; lastGrupo=grupoMap[num];
       }
       const qLines=splitTxt(num+'. '+item.pergunta,CW-38);
-      const obsLines=((item.resposta==='NÃO'||item.resposta==='TROCA')&&item.obsNao)?splitTxt('⚠ '+item.obsNao,CW-12):[];
+      const obsLines=((item.resposta==='NÃO'||item.resposta==='TROCA')&&item.obsNao)?splitTxt('⚠ '+item.obsNao,CW-20):[];
       const ih=Math.max(qLines.length*4.5+6,10)+(obsLines.length>0?obsLines.length*4+2:0);
       chk(ih+3);
       const isNao=item.resposta==='NÃO';
