@@ -3026,9 +3026,9 @@ window.generatePDF = function(id) {
         y+=10; lastGrupo=grupoMap[num];
       }
       const qLines=splitTxt(num+'. '+item.pergunta,CW-38);
-      const subOp = (item.subOpcoes && item.subOpcoes.length) ? item.subOpcoes.join(' · ') : '';
-      const obsText = [subOp, item.obsNao].filter(Boolean).join(' — ');
-      const obsLines=(item.resposta==='NÃO'&&obsText)?splitTxt('⚠ '+obsText,CW-20):[];
+      const subOp = (item.subOpcoes && item.subOpcoes.length) ? item.subOpcoes.join(' / ') : '';
+      const obsText = [subOp, item.obsNao].filter(Boolean).join(' - ');
+      const obsLines=(item.resposta==='NÃO'&&obsText)?splitTxt('[!] '+obsText,CW-20):[];
       const ih=Math.max(qLines.length*4.5+6,10)+(obsLines.length>0?obsLines.length*4+2:0);
       chk(ih+3);
       const isNao=item.resposta==='NÃO';
