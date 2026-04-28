@@ -2893,11 +2893,13 @@ window.generatePDF = function(id) {
         const photoRows = Math.ceil(Math.min(numFotos, 4) / 2);
         const photosHeight = photoRows * (photoH + 3);
         
-        let infoHeight = 26 + 22 + 10; // Box 1 + Box 2 + Box 3 (GPS)
-        if (obsLines.length) infoHeight += obsLines.length * 4.5 + 12; // Box OBS
-
+        let infoHeight = 15 + 28 + 22 + 12; // Header(15)+B1(28)+B2(22)+B3(12) = 77
+        if (obsLines.length) {
+          const obsBoxH = obsLines.length * 4.5 + 10;
+          infoHeight += obsBoxH + 2; 
+        }
         
-        let bh = Math.max(infoHeight, photosHeight) + 12; 
+        let bh = Math.max(infoHeight, photosHeight) + 6; 
         
         chk(bh + 5);
         
