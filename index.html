@@ -173,6 +173,24 @@ input.field-ok{border-color:var(--success)!important;}
 .insp-obs-wrap textarea{background:var(--bg-input);border:1px solid rgba(239,68,68,.4);border-radius:6px;color:var(--text);padding:8px 10px;font-size:12px;font-family:'DM Sans',sans-serif;width:100%;resize:vertical;min-height:56px;outline:none;}
 .insp-obs-wrap textarea:focus{border-color:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.15);}
 .insp-obs-label{font-size:11px;font-weight:600;color:var(--danger);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;display:block;}
+/* ── INSPECTION NOVA (grupos com sub-opções) ─────────────── */
+.insp-row{background:var(--bg-section);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:5px;transition:border-color .2s;overflow:hidden;}
+.insp-row:hover{border-color:var(--border-active);}
+.insp-row.has-nao{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.04);}
+.insp-row-main{display:flex;align-items:center;gap:10px;padding:10px 13px;}
+.insp-pergunta{flex:1;font-size:13px;color:var(--text);line-height:1.4;}
+.insp-pills{flex-shrink:0;display:flex;gap:4px;}
+.insp-pills .radio-pill label{padding:5px 13px;font-size:11px;}
+.insp-sub-wrap{border-top:1px dashed rgba(239,68,68,.3);padding:10px 13px;display:none;background:rgba(239,68,68,.03);}
+.insp-sub-wrap.visible{display:block;}
+.insp-sub-label{font-size:11px;font-weight:700;color:var(--danger);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.insp-sub-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.insp-chip{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;border:1.5px solid var(--border-active);cursor:pointer;font-size:11px;font-weight:600;color:var(--text-muted);transition:all .15s;user-select:none;background:var(--bg-input);}
+.insp-chip:hover{border-color:var(--danger);color:var(--danger);}
+.insp-chip input[type=checkbox]{position:absolute;opacity:0;width:0;height:0;pointer-events:none;}
+.insp-chip:has(input:checked){background:rgba(239,68,68,.13);border-color:var(--danger);color:var(--danger);font-weight:700;}
+.insp-sub-wrap textarea{background:var(--bg-input);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:var(--text);padding:8px 10px;font-size:12px;font-family:'DM Sans',sans-serif;width:100%;resize:vertical;min-height:44px;outline:none;}
+.insp-sub-wrap textarea:focus{border-color:var(--danger);box-shadow:0 0 0 3px rgba(239,68,68,.15);}
 
 /* ── EQUIPMENT ──────────────────────────────────────────── */
 .equipamento-card{background:var(--bg-section);border:1px solid var(--border);border-radius:var(--radius-sm);padding:15px;margin-bottom:11px;}
@@ -949,99 +967,62 @@ const MODULES = {
     servicos: [],
     hasServicos: false,
     hasEquipamentos: true,
-    // ── INSPEÇÃO COM 4 GRUPOS E OPÇÃO EXTRA "TROCA" ──
+    // ── INSPEÇÃO COM 3 SEÇÕES E SUB-OPÇÕES POR FALHA ──
     inspecaoGrupos: [
       {
         titulo: '1° Portas',
         itens: [
-          'Porta Lateral Direita — Condição geral? (amassada, emperrada, com furo ou rasgo)',
-          'Porta Lateral Esquerda — Condição geral? (amassada, emperrada, com furo ou rasgo)',
-          'Alavanca da Porta — Aciona corretamente? (efeito mola, amassada ou quebrada)',
-          'Haste da Porta — Sem dobras ou danos? (amassada, quebrada ou emperrada)',
-          'Trinco da Porta — Trava e destrava corretamente?',
-          'Guia da Haste — Está preso e sem folga excessiva?',
-          'Unha da Haste — Encaixe correto, sem deformação?',
-          'Alça da Porta — Firme e sem avarias?',
-          'Borracha da Porta — Vedação íntegra, sem rasgos?',
-          'Corrente da Trava da Porta — Presente e funcional?',
-          'Gancho Lateral da Trava da Porta — Encaixa e retém corretamente?',
-          'Proteção Superior da Porta — Sem danos ou folgas? (amassamento, trinca)',
-          'Proteção Inferior da Porta — Sem danos ou folgas? (amassamento, trinca)',
-          'Dobradiça — Movimento suave, sem corrosão excessiva?',
+          { pergunta: 'Porta Lateral (Dir/Esq)',  opcoes: ['Amassada','Emperrada','Com furo','Rasgo','Outros'] },
+          { pergunta: 'Alavanca da Porta',        opcoes: ['Efeito mola falhando','Amassada','Quebrada','Outros'] },
+          { pergunta: 'Haste da Porta',           opcoes: ['Amassada','Quebrada','Emperrada','Outros'] },
+          { pergunta: 'Trinco da Porta',          opcoes: ['Não trava','Não destrava','Emperrado','Outros'] },
+          { pergunta: 'Guia da Haste',            opcoes: ['Solto','Folga excessiva','Outros'] },
+          { pergunta: 'Unha da Haste',            opcoes: ['Desalinhada','Deformada','Outros'] },
+          { pergunta: 'Borracha da Porta',        opcoes: ['Ressecada','Rasgada','Descolada','Outros'] },
+          { pergunta: 'Proteção (Sup/Inf)',       opcoes: ['Amassada','Com trinca','Solta','Outros'] },
+          { pergunta: 'Dobradiça',                opcoes: ['Movimento rígido','Corrosão','Quebrada','Outros'] },
         ],
-        comTroca: true,
       },
       {
         titulo: '2° Tampa',
         itens: [
-          'Tampa — Condição geral, sem amassados ou deformações? (incluir trinca)',
-          'Trinco da Tampa — Trava e destrava corretamente?',
-          'Unha da Tampa — Encaixe correto, sem deformação?',
-          'Alça da Tampa — Firme e sem avarias?',
-          'Borracha da Tampa — Vedação íntegra, sem rasgos?',
-          'Borracha Batente da Tampa — Íntegra e bem fixada?',
-          'Corrente da Trava da Tampa — Presente e funcional?',
-          'Barra Fixa de Vedação da Tampa — Sem folgas ou deformações?',
-          'Amortecedor da Tampa — Funciona corretamente, sem vazamento?',
-          'Passagem de Lacre da Tampa — Presente e sem obstrução?',
+          { pergunta: 'Tampa (Geral)',            opcoes: ['Amassada','Deformada','Trincada','Outros'] },
+          { pergunta: 'Amortecedor',              opcoes: ['Sem pressão','Vazamento de óleo','Travado','Outros'] },
+          { pergunta: 'Borracha Batente',         opcoes: ['Ausente','Danificada','Solta','Outros'] },
+          { pergunta: 'Passagem de Lacre',        opcoes: ['Obstruída','Ausente','Quebrada','Outros'] },
         ],
-        comTroca: true,
       },
       {
-        titulo: '3° Amarração e Fixação',
+        titulo: '3° Amarração e Estrutura',
         itens: [
-          'Argola de Amarração Externa — Firme, sem rachaduras ou deformações?',
-          'Argola de Amarração Interna — Firme, sem rachaduras ou deformações?',
-          'Gancho de Amarração Externo — Sem dobras, encaixe correto?',
+          { pergunta: 'Argolas (Int/Ext)',        opcoes: ['Rachada','Deformada','Solta','Outros'] },
+          { pergunta: 'Ganchos Externos',         opcoes: ['Dobrado','Desalinhado','Outros'] },
+          { pergunta: 'Piso',                     opcoes: ['Com resíduos','Deformado','Furado','Outros'] },
+          { pergunta: 'Teto',                     opcoes: ['Furado','Corrosão','Amassado','Outros'] },
+          { pergunta: 'Número de Série',          opcoes: ['Ilegível','Divergente do cadastro','Ausente','Outros'] },
         ],
-        comTroca: true,
-      },
-      {
-        titulo: '4° Estrutura e Identificação',
-        itens: [
-          'Lateral Direita — Sem amassados, furos ou corrosão estrutural?',
-          'Lateral Esquerda — Sem amassados, furos ou corrosão estrutural?',
-          'Piso — Sem danos, deformações ou acúmulo de resíduos?',
-          'Teto — Sem amassados, furos ou corrosão?',
-          'Número de Série (Teto e Laterais) — Legível e conforme cadastro?',
-        ],
-        comTroca: false, // último grupo: SIM – NÃO – N/A (sem Troca)
       },
     ],
-    // inspecao plana para compatibilidade com coleta/PDF
+    // array plano para compatibilidade com PDF e progresso
     inspecao: [
-      'Porta Lateral Direita — Condição geral? (amassada, emperrada, com furo ou rasgo)',
-      'Porta Lateral Esquerda — Condição geral? (amassada, emperrada, com furo ou rasgo)',
-      'Alavanca da Porta — Aciona corretamente? (efeito mola, amassada ou quebrada)',
-      'Haste da Porta — Sem dobras ou danos? (amassada, quebrada ou emperrada)',
-      'Trinco da Porta — Trava e destrava corretamente?',
-      'Guia da Haste — Está preso e sem folga excessiva?',
-      'Unha da Haste — Encaixe correto, sem deformação?',
-      'Alça da Porta — Firme e sem avarias?',
-      'Borracha da Porta — Vedação íntegra, sem rasgos?',
-      'Corrente da Trava da Porta — Presente e funcional?',
-      'Gancho Lateral da Trava da Porta — Encaixa e retém corretamente?',
-      'Proteção Superior da Porta — Sem danos ou folgas? (amassamento, trinca)',
-      'Proteção Inferior da Porta — Sem danos ou folgas? (amassamento, trinca)',
-      'Dobradiça — Movimento suave, sem corrosão excessiva?',
-      'Tampa — Condição geral, sem amassados ou deformações? (incluir trinca)',
-      'Trinco da Tampa — Trava e destrava corretamente?',
-      'Unha da Tampa — Encaixe correto, sem deformação?',
-      'Alça da Tampa — Firme e sem avarias?',
-      'Borracha da Tampa — Vedação íntegra, sem rasgos?',
-      'Borracha Batente da Tampa — Íntegra e bem fixada?',
-      'Corrente da Trava da Tampa — Presente e funcional?',
-      'Barra Fixa de Vedação da Tampa — Sem folgas ou deformações?',
-      'Amortecedor da Tampa — Funciona corretamente, sem vazamento?',
-      'Passagem de Lacre da Tampa — Presente e sem obstrução?',
-      'Argola de Amarração Externa — Firme, sem rachaduras ou deformações?',
-      'Argola de Amarração Interna — Firme, sem rachaduras ou deformações?',
-      'Gancho de Amarração Externo — Sem dobras, encaixe correto?',
-      'Lateral Direita — Sem amassados, furos ou corrosão estrutural?',
-      'Lateral Esquerda — Sem amassados, furos ou corrosão estrutural?',
-      'Piso — Sem danos, deformações ou acúmulo de resíduos?',
-      'Teto — Sem amassados, furos ou corrosão?',
-      'Número de Série (Teto e Laterais) — Legível e conforme cadastro?',
+      'Porta Lateral (Dir/Esq)',
+      'Alavanca da Porta',
+      'Haste da Porta',
+      'Trinco da Porta',
+      'Guia da Haste',
+      'Unha da Haste',
+      'Borracha da Porta',
+      'Proteção (Sup/Inf)',
+      'Dobradiça',
+      'Tampa (Geral)',
+      'Amortecedor',
+      'Borracha Batente',
+      'Passagem de Lacre',
+      'Argolas (Int/Ext)',
+      'Ganchos Externos',
+      'Piso',
+      'Teto',
+      'Número de Série',
     ],
     statusPor: 'equipamentos',
     requiredIds: ['responsavel','data','setor','motivo'],
@@ -1335,21 +1316,29 @@ function buildInspecaoHTML(perguntas, comTroca) {
 function buildInspecaoGruposHTML(grupos) {
   let globalIdx = 0;
   return grupos.map(grupo => {
-    const itensHTML = grupo.itens.map((q) => {
+    const itensHTML = grupo.itens.map((item) => {
       globalIdx++;
       const n = globalIdx;
-      const troca = grupo.comTroca
-        ? `<div class="radio-pill warning-pill"><input type="radio" id="insp-troca-${n}" name="insp-${n}" value="TROCA"><label for="insp-troca-${n}">Troca</label></div>`
-        : '';
-      return `<div class="inspection-item">
-        <p class="inspection-question"><span class="insp-num">${n}.</span> ${q}</p>
-        <div class="radio-group">
-          <div class="radio-pill success"><input type="radio" id="insp-sim-${n}" name="insp-${n}" value="SIM"><label for="insp-sim-${n}">Sim</label></div>
-          <div class="radio-pill danger"><input type="radio" id="insp-nao-${n}" name="insp-${n}" value="NÃO"><label for="insp-nao-${n}">Não</label></div>
-          ${troca}
-          <div class="radio-pill"><input type="radio" id="insp-na-${n}" name="insp-${n}" value="N/A"><label for="insp-na-${n}">N/A</label></div>
+      const pergunta = typeof item === 'string' ? item : item.pergunta;
+      const opcoes   = typeof item === 'string' ? [] : (item.opcoes || []);
+      const chipsHTML = opcoes.map(op =>
+        `<label class="insp-chip"><input type="checkbox" class="insp-sub-cb" value="${op}"><span>${op}</span></label>`
+      ).join('');
+      return `<div class="insp-row inspection-item">
+        <div class="insp-row-main">
+          <span class="insp-num">${n}.</span>
+          <span class="insp-pergunta">${pergunta}</span>
+          <div class="radio-group insp-pills">
+            <div class="radio-pill success"><input type="radio" id="insp-sim-${n}" name="insp-${n}" value="SIM"><label for="insp-sim-${n}">Sim</label></div>
+            <div class="radio-pill danger"><input type="radio" id="insp-nao-${n}" name="insp-${n}" value="NÃO"><label for="insp-nao-${n}">Não</label></div>
+            <div class="radio-pill"><input type="radio" id="insp-na-${n}" name="insp-${n}" value="N/A"><label for="insp-na-${n}">N/A</label></div>
+          </div>
         </div>
-        <div class="insp-obs-wrap"><label class="insp-obs-label">⚠ Observação sobre o item:</label><textarea class="insp-item-obs" placeholder="Descreva o problema encontrado..."></textarea></div>
+        <div class="insp-sub-wrap">
+          <div class="insp-sub-label">⚠ Indique o problema:</div>
+          ${chipsHTML ? `<div class="insp-sub-chips">${chipsHTML}</div>` : ''}
+          <textarea class="insp-item-obs" placeholder="Observações adicionais..."></textarea>
+        </div>
       </div>`;
     }).join('');
     return `<div class="insp-grupo">
@@ -1359,18 +1348,22 @@ function buildInspecaoGruposHTML(grupos) {
   }).join('');
 }
 
+
 function rebindInspecaoEvents() {
   document.querySelectorAll('#inspecao-itens input[type=radio]').forEach(r =>
     r.addEventListener('change', function() {
       updateProgress();
       const item = this.closest('.inspection-item');
-      const obsWrap = item.querySelector('.insp-obs-wrap');
+      // Suporta .insp-obs-wrap (transbordo/externa) e .insp-sub-wrap (interna grupos)
+      const obsWrap = item.querySelector('.insp-obs-wrap') || item.querySelector('.insp-sub-wrap');
       if (!obsWrap) return;
-      // Mostrar obs se NÃO ou TROCA
       if (this.value === 'NÃO' || this.value === 'TROCA') {
         obsWrap.classList.add('visible'); item.classList.add('has-nao');
       } else {
-        obsWrap.classList.remove('visible'); obsWrap.querySelector('textarea').value = ''; item.classList.remove('has-nao');
+        obsWrap.classList.remove('visible');
+        const ta = obsWrap.querySelector('textarea'); if (ta) ta.value = '';
+        obsWrap.querySelectorAll('.insp-sub-cb').forEach(cb => cb.checked = false);
+        item.classList.remove('has-nao');
       }
     }));
 }
@@ -1610,7 +1603,7 @@ function addEquipamento() {
   if (select && currentModule && currentModule.color === 'interna') {
     select.addEventListener('change', function() {
       const val = this.value.toUpperCase();
-      const contentoresTypes = ['RIET', 'FRAC', 'GAPE', 'HELI', 'OCTO', 'TANQUE'];
+      const contentoresTypes = ['FRAC', 'GAPE', 'HELI', 'OCTO', 'TANQUE'];
       const isContentor = contentoresTypes.some(t => val.includes(t));
 
       const inspecaoCard = document.getElementById('inspecao-itens').closest('.section-card');
@@ -1938,10 +1931,13 @@ function collectFormData(id) {
 
   const respostasInspecao = {};
   document.querySelectorAll('#inspecao-itens .inspection-item').forEach((item, i) => {
+    const perguntaEl = item.querySelector('.inspection-question') || item.querySelector('.insp-pergunta');
+    const subOpcoes = [...item.querySelectorAll('.insp-sub-cb:checked')].map(cb => cb.value);
     respostasInspecao['pergunta_'+(i+1)] = {
-      pergunta: item.querySelector('.inspection-question').textContent.trim(),
+      pergunta: perguntaEl ? perguntaEl.textContent.trim() : '',
       resposta: item.querySelector('input[type=radio]:checked')?.value || 'NÃO RESPONDIDO',
       obsNao: item.querySelector('.insp-item-obs')?.value || '',
+      subOpcoes,
     };
   });
 
@@ -2056,8 +2052,14 @@ function fillFormWithData(d) {
     if (!el) return;
     el.querySelectorAll('input[type=radio]').forEach(r => { if (r.value === item.resposta) r.checked = true; });
     if (item.resposta === 'NÃO' || item.resposta === 'TROCA') {
-      const ow = el.querySelector('.insp-obs-wrap');
-      if (ow) { ow.classList.add('visible'); el.classList.add('has-nao'); const ta = ow.querySelector('textarea'); if (ta && item.obsNao) ta.value = item.obsNao; }
+      const ow = el.querySelector('.insp-obs-wrap') || el.querySelector('.insp-sub-wrap');
+      if (ow) {
+        ow.classList.add('visible'); el.classList.add('has-nao');
+        const ta = ow.querySelector('textarea'); if (ta && item.obsNao) ta.value = item.obsNao;
+        (item.subOpcoes || []).forEach(op => {
+          const cb = ow.querySelector(`.insp-sub-cb[value="${op}"]`); if (cb) cb.checked = true;
+        });
+      }
     }
   });
   updateProgress();
@@ -3024,7 +3026,9 @@ window.generatePDF = function(id) {
         y+=10; lastGrupo=grupoMap[num];
       }
       const qLines=splitTxt(num+'. '+item.pergunta,CW-38);
-      const obsLines=((item.resposta==='NÃO'||item.resposta==='TROCA')&&item.obsNao)?splitTxt('⚠ '+item.obsNao,CW-20):[];
+      const subOp = (item.subOpcoes && item.subOpcoes.length) ? item.subOpcoes.join(' · ') : '';
+      const obsText = [subOp, item.obsNao].filter(Boolean).join(' — ');
+      const obsLines=(item.resposta==='NÃO'&&obsText)?splitTxt('⚠ '+obsText,CW-20):[];
       const ih=Math.max(qLines.length*4.5+6,10)+(obsLines.length>0?obsLines.length*4+2:0);
       chk(ih+3);
       const isNao=item.resposta==='NÃO';
